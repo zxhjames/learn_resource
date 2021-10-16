@@ -4,11 +4,15 @@
 
 # LeetCode-剑指offer第二版
 
+[TOC]
+
 
 
 ## 数组
 
 #### [剑指 Offer 04. 二维数组中的查找](https://leetcode-cn.com/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/)
+
+<img src="/Users/mac/Library/Application Support/typora-user-images/image-20211016085737018.png" alt="image-20211016085737018" style="zoom:80%;" />
 
 解题思路:
 
@@ -56,6 +60,14 @@ class Solution {
 
 
 
+$$
+O(n^2)
+$$
+
+
+
+
+
 
 
 
@@ -71,6 +83,8 @@ class Solution {
 ## 动态规划/搜索
 
 ### [剑指 Offer 12. 矩阵中的路径](https://leetcode-cn.com/problems/ju-zhen-zhong-de-lu-jing-lcof/)
+
+![image-20211016092829160](/Users/mac/Library/Application Support/typora-user-images/image-20211016092829160.png)
 
 解题思路:
 
@@ -117,6 +131,53 @@ class Solution {
     }
 }
 ```
+
+
+
+### [剑指 Offer 13. 机器人的运动范围](https://leetcode-cn.com/problems/ji-qi-ren-de-yun-dong-fan-wei-lcof/)
+
+![image-20211016094946586](/Users/mac/Library/Application Support/typora-user-images/image-20211016094946586.png)
+
+解题思路:
+
+搜索问题，在这里我的方法是首先对方格数组做一个转换，即满足题设条件的位置标注为0，代表当前位置可走，否则标为1，代表不可走，这样整个方格数组都会转化为一个非0即1的地图，我们只需要从(0,0)这个位置开始搜索，搜索到可以走的最大长度即可，在这里的搜索函数最后为什么我们不把(i,j)位置的值修改回来，这里有别于上一道题目**矩阵中的路径**，因为机器人不需要从地图中的每个位置开始，只需要一次遍历即可，所以不能修改回来，否则就会重复走了
+
+```java
+class Solution {
+    public int movingCount(int m, int n, int k) {
+        // 生成数组
+        int[][] map = new int[m][n];
+        // 首先将数组转化为地图 “0” 代表该位置可以走，“1”代表不能走
+        for (int i=0;i<m;++i){
+            for(int j=0;j<n;++j){
+                // 计算索引的和
+                int sum = i / 10 + i % 10 + j / 10 + j % 10;
+                if (sum <= k){
+                    map[i][j] = 0;
+                }else{
+                    map[i][j] = 1;
+                }
+            }
+        }
+        // dfs
+        return dfs(map,0,0);
+    }
+
+    public int dfs(int[][] map,int i,int j) {
+        // 边界条件即返回
+        if (i < 0 || i >= map.length || j < 0 || j >= map[0].length || map[i][j]!=0) {
+            return 0;
+        }
+        // 修改当前位置不可走
+        map[i][j] = -1;
+        // 返回四个位置进行搜索后求和的结果
+        return dfs(map,i+1,j) + dfs(map,i-1,j) + dfs(map,i,j+1) + dfs(map,i,j-1) + 1;
+    }
+}
+```
+
+
+
 
 
 
