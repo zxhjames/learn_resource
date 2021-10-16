@@ -10,7 +10,9 @@
 
 ## 数组
 
-#### [剑指 Offer 04. 二维数组中的查找](https://leetcode-cn.com/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/)
+### [剑指 Offer 04. 二维数组中的查找](https://leetcode-cn.com/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/)
+
+
 
 <img src="/Users/mac/Library/Application Support/typora-user-images/image-20211016085737018.png" alt="image-20211016085737018" style="zoom:80%;" />
 
@@ -77,6 +79,44 @@ $$
 
 
 ## 二叉树
+
+### [剑指 Offer 07. 重建二叉树](https://leetcode-cn.com/problems/zhong-jian-er-cha-shu-lcof/)
+
+![image-20211016104830625](/Users/mac/Library/Application Support/typora-user-images/image-20211016104830625.png)
+
+解题思路:
+
+这道题可以通过递归来做，由于前序遍历的遍历顺序是“根左右”，中序遍历的顺序是“左根右”，那我们输入的两个前序和中序数组的整体表示情况就为**[   根 | 左 | 右 ]**和**[ 左 | 根 | 右 ]**，并且“根，左，右”的每一段序列长度都是一样长的，我们以前序遍历数组(*preorder*)的第一个位置值**"根"**为基准，然后在中序遍历数组(*inorder*)中寻找"根"位置的索引号，假设我们在inorder中找到位置的索引为index,那么很容易判断**在当前根结点**下的左子树有index个结点，右子树有preorder.length - index -1个结点，那么对于新的preorder而言，左子树的范围就是[1,i+1],右子树的范围是[i+1,preorder.length]，对于新的inorder而言，左子树的范围是[0,i],右子树是[i+1,inorder.length],这样就可以递归的去创建子树，代码如下
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        if (preorder.length == 0 || inorder.length == 0) {
+            return null;
+        }
+        TreeNode root = new TreeNode(preorder[0]);
+        for (int i = 0;i<inorder.length;++i) {
+            if (preorder[0] == inorder[i]) {
+                root.left=buildTree(Arrays.copyOfRange(preorder,1,i+1),Arrays.copyOfRange(inorder,0,i));
+                root.right=buildTree(Arrays.copyOfRange(preorder,i+1,preorder.length),Arrays.copyOfRange(inorder,i+1,inorder.length));
+                break;
+            }
+        }
+        return root;
+    }
+}
+```
+
+
 
 ## 字符串
 
