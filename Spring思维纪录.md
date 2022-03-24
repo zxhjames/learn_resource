@@ -67,7 +67,7 @@ Bean的实例化实在AbstractAutowireCapableBeanFactory中进行的，这个类
 
 ![](https://github.com/DerekYRC/mini-spring/raw/main/assets/bean-definition-and-bean-definition-registry.png)
 
-Bean的实例化会调用**AbstractAutowireCapableFactory类的createBeanInstance**方法实例化Bean,开始时，会去判断Bean是否需要被代理，有的话可以直接返回对象，这一步其实就是**实力化的前置处理操作**，经过前置处理后返回的结果如果不为空，那么就会直接略过后续的Bean的创建从而直接返回结果
+Bean的实例化会调用**AbstractAutowireCapableFactory类的createBeanInstance**方法实例化Bean,开始时，会去判断Bean是否需要被代理，有的话可以直接返回对象，这一步其实就是**实力化的前置处理操作**，经过前置处理后返回的结果如果不为空，那么就会直接略过后续的Bean的创建从而直接返回结果,所谓的实例化前置，就是在对象进行实例化之前对Bean对象的class信息进行扩展或者修改，以达到我们想要的功能，它的底层是动态代理AOP实现的，并且是Bean周期中最先执行的方法，这个过程我们要知道，是用反射技术创建的，只是相当于new出来了一个对象而已，但是这个时候的只是将对象进行实例化了，对象内的属性值还没有设置，如果返回的对象为空，则会开始真正创建Bean的过程
 
 ```java
 	@Override
@@ -79,5 +79,51 @@ Bean的实例化会调用**AbstractAutowireCapableFactory类的createBeanInstanc
 		}
 
 		return doCreateBean(beanName, beanDefinition);
+	}
+```
+我们进入到doCreateBean方法中，可以看到以下的代码
+
+```java
+protected Object doCreateBean(String beanName, BeanDefinition beanDefinition) {
+		Object bean;
+		try {
+			bean = createBeanInstance(beanDefinition);
+
+			//为解决循环依赖问题，将实例化后的bean放进缓存中提前暴露
+			if (beanDefinition.isSingleton()) {
+				Object finalBean = bean;
+				addSingletonFactory(beanName, new ObjectFactory<Object>() {
+					@Override
+					public Object getObject() throws BeansException {
+						return getEarlyBeanReference(beanName, beanDefinition, finalBean);
+					}
+				});
+			}
+
+			//实例化bean之后执行
+			boolean continueWithPropertyPopulation = applyBeanPostProcessorsAfterInstantiation(beanName, bean);
+			if (!continueWithPropertyPopulation) {
+				return bean;
+			}
+			//在设置bean属性之前，允许BeanPostProcessor修改属性值
+			applyBeanPostProcessorsBeforeApplyingPropertyValues(beanName, bean, beanDefinition);
+			//为bean填充属性
+			applyPropertyValues(beanName, bean, beanDefinition);
+			//执行bean的初始化方法和BeanPostProcessor的前置和后置处理方法
+			bean = initializeBean(beanName, bean, beanDefinition);
+		} catch (Exception e) {
+			throw new BeansException("Instantiation of bean failed", e);
+		}
+
+		//注册有销毁方法的bean
+		registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
+
+		Object exposedObject = bean;
+		if (beanDefinition.isSingleton()) {
+			//如果有代理对象，此处获取代理对象
+			exposedObject = getSingleton(beanName);
+			addSingleton(beanName, exposedObject);
+		}
+		return exposedObject;
 	}
 ```
