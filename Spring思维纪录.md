@@ -155,3 +155,15 @@ public interface BeanPostProcessor {
 }
 
 ```
+
+相比于BeanFactory,ApplicationContext是Spring中较BeanFactory更为先进的IOC容器，ApplicationContext除了拥有BeanFactory的所有功能外，还支持特殊类型bean如上一节中的BeanFactoryPostProcessor和BeanPostProcessor的自动识别、资源加载、容器事件和监听器、国际化支持、单例bean自动初始化等。注意这里的一大特点就是自动识别BeanFactoryPostProcessor和BeanPostProcessor,BeanFactory是Spring的基础设施，面向本身，ApplicationContext是面向使用者的
+
+2. Bean的初始化方法和销毁方法
+
+在Spring中，定义Bean的初始化和销毁方法有三种
+* 在xml中自定义init-method和destroy-method,这种方式需要在BeanDefinition中增加属性initMethodName和destroyMethodName.初始化方法在AbstractAutowireCapableBeanFactory执行，
+* 继承自initializingBean和DisposalbleBean
+* 在方法上加注解PostConstruct和PreDestroy
+
+	
+	
