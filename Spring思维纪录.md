@@ -7,7 +7,7 @@
 
 ---
 
-Bean对象的生命周期是由IOC进行管理的，在Spring中的基础容器是ApplicationContext,他是顶层容器接口BeanFactory的实现类，总的来说，Bean的生命周期包括了**创建时准备，创建实例，依赖注入，容器缓存，销毁实例**几个流程，基本思路是，在Bean出现之前，先准备操作Bean的BeanFactory，然后操作完Bean，将Bean交给BeanFactory管理，总的来说，归位以下几个阶段
+Bean对象的生命周期是由IOC进行管理的，在Spring中的基础容器是ApplicationContext,他是顶层容器接口BeanFactory的实现类，总的来说，Bean的生命周期包括了**创建时准备，创建实例，依赖注入，容器缓存，销毁实例**几个流程，基本思路是，在Bean出现之前，先准备操作Bean的BeanFactory，然后操作完Bean，将Bean交给BeanFactory管理，总的来说，归为以下几个阶段
 
 - Bean创建前的准备
 
@@ -29,4 +29,10 @@ public class BeanDefinitionAndBeanDefinitionRegistryTest {
 }
 ```
 
-接下来，工厂会对已注册的**Bean实施实例化**策略，现有的Bean实例化策略是在AbstractAutoWireCapleBleBeanFactory使用BeanClass.newInstance()来实例化，仅仅用于Bean的无参构造，往下走就是为**Bean填充属性，**在BeanDefinition中增加和Bean属性对应的PropertyValues，实施Bean之后，为Bean填充属性
+接下来，工厂会对已注册的**Bean实施实例化**策略，现有的Bean实例化策略是在AbstractAutoWireCapleBleBeanFactory使用BeanClass.newInstance()来实例化，仅仅用于Bean的无参构造，往下走就是为**Bean填充属性**， 在BeanDefinition中增加和Bean属性对应的PropertyValues，实施Bean之后，为Bean填充属性，在此期间可能会增加BeanReference类来包装一个Bean对另一个Bean的引用，在这里可能会出现循环引用的，在这里记录一下
+
+> 所谓的Bean循环引用，其实就是Spring在初始化过程中，会按照BeanDefinitionNames的顺序，也就是Bean的注册顺序来依次初始化所有的Bean，对所有的Bean会调用一次getBean，然后由BeanFactory进行初始化
+
+例如
+> 所谓的Bean循环引用，其实就是Spring在初始化过程中，会按照BeanDefinitionNames的顺序，也就是Bean的注册顺序来依次初始化所有的Bean，对所有的Bean会调用一次getBean，然后由BeanFactory进行初始化下面下
+> 所谓的Bean循环引用，其实就是Spring在初始化过程中，会按照BeanDefinitionNames的顺序，也就是Bean的注册顺序来依次初始化所有的Bean，对所有的Bean会调用一次getBean，然后由BeanFactory进行初始化下面
