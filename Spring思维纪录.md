@@ -67,7 +67,7 @@ Bean的实例化实在AbstractAutowireCapableBeanFactory中进行的，这个类
 
 ![](https://github.com/DerekYRC/mini-spring/raw/main/assets/bean-definition-and-bean-definition-registry.png)
 
-Bean的实例化会调用**AbstractAutowireCapableFactory类的createBeanInstance**方法实例化Bean,开始时，会去判断Bean是否需要被代理，有的话可以直接返回对象，这一步其实就是**实力话的前置处理操作**，经过前置处理后返回的结果如果不为空，那么就会直接略过后续的Bean的创建从而直接返回结果
+Bean的实例化会调用**AbstractAutowireCapableFactory类的createBeanInstance**方法实例化Bean,开始时，会去判断Bean是否需要被代理，有的话可以直接返回对象，这一步其实就是**实力化的前置处理操作**，经过前置处理后返回的结果如果不为空，那么就会直接略过后续的Bean的创建从而直接返回结果
 
 ```java
 	@Override
