@@ -33,6 +33,51 @@ public class BeanDefinitionAndBeanDefinitionRegistryTest {
 
 > 所谓的Bean循环引用，其实就是Spring在初始化过程中，会按照BeanDefinitionNames的顺序，也就是Bean的注册顺序来依次初始化所有的Bean，对所有的Bean会调用一次getBean，然后由BeanFactory进行初始化
 
-例如
-> 所谓的Bean循环引用，其实就是Spring在初始化过程中，会按照BeanDefinitionNames的顺序，也就是Bean的注册顺序来依次初始化所有的Bean，对所有的Bean会调用一次getBean，然后由BeanFactory进行初始化下面下
-> 所谓的Bean循环引用，其实就是Spring在初始化过程中，会按照BeanDefinitionNames的顺序，也就是Bean的注册顺序来依次初始化所有的Bean，对所有的Bean会调用一次getBean，然后由BeanFactory进行初始化下面
+例如下面这段代码
+```java
+public class CircularReferenceWithoutProxyBeanTest {
+
+	@Test
+	public void testCircularReference() throws Exception {
+		ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:circular-reference-without-proxy-bean.xml");
+		A a = applicationContext.getBean("a", A.class);
+		B b = applicationContext.getBean("b", B.class);
+		assertThat(a.getB() == b).isTrue();
+	}
+}
+```
+我们从XML文件中按照顺序读取出了A和B对象，但是在XMl文件中显示两个对象之间是互相引用的
+```xml
+    <bean id="b" class="org.springframework.test.bean.B">
+        <property name="a" ref="a"/>
+    </bean>
+
+    <!-- a被代理 -->
+    <bean id="a" class="org.springframework.test.bean.A">
+        <property name="b" ref="b"/>
+    </bean>
+```
+我们都知道初始化Bean有两个关键流程，一个是创建Bean对象，一个是填充Bean的属性值，如果出现了上面这种情况，可能ABean在填充过程中发现了B的引用，要先去对BBean进行初始化操作，但是BBean在初始化的时候也发现了A的引用，需要回去创建A，所以就会出现死循环的情况，先来看下Bean的整个初始化流程图,这些全部都是在doCreateBean这个函数中完成的
+
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5a4df85e9968403bbe5c9200fe7e1bd4~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp)
+
+1.Bean的实例化
+
+Bean的实例化实在AbstractAutowireCapableBeanFactory中进行的，这个类是实现了AbstractCapableBeanFactory接口，而AbstractCapableBeanFactory接口则是实现了BeanFactory接口
+
+![](https://github.com/DerekYRC/mini-spring/raw/main/assets/bean-definition-and-bean-definition-registry.png)
+
+Bean的实例化会调用**AbstractAutowireCapableFactory类的createBeanInstance**方法实例化Bean,开始时，会去判断Bean是否需要被代理，有的话可以直接返回对象，这一步其实就是**实力话的前置处理操作**，经过前置处理后返回的结果如果不为空，那么就会直接略过后续的Bean的创建从而直接返回结果
+
+```java
+	@Override
+	protected Object createBean(String beanName, BeanDefinition beanDefinition) throws BeansException {
+		//如果bean需要代理，则直接返回代理对象
+		Object bean = resolveBeforeInstantiation(beanName, beanDefinition);
+		if (bean != null) {
+			return bean;
+		}
+
+		return doCreateBean(beanName, beanDefinition);
+	}
+```
