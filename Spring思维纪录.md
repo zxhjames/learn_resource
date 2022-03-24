@@ -127,3 +127,31 @@ protected Object doCreateBean(String beanName, BeanDefinition beanDefinition) {
 		return exposedObject;
 	}
 ```
+
+BeanPostProcessor的两个方法分别在Bean执行初始化方法(后面实现)之前和之后执行，是Spring提供的容器扩展机制，不同于BeanFactoryPostProcessor的是，BeanPostProcessor在Bean实例化后修改Bean或者替换Bean，是实现AOP的关键
+
+```java
+public interface BeanPostProcessor {
+
+	/**
+	 * 在bean执行初始化方法之前执行此方法
+	 *
+	 * @param bean
+	 * @param beanName
+	 * @return
+	 * @throws BeansException
+	 */
+	Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException;
+
+	/**
+	 * 在bean执行初始化方法之后执行此方法
+	 *
+	 * @param bean
+	 * @param beanName
+	 * @return
+	 * @throws BeansException
+	 */
+	Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException;
+}
+
+```
