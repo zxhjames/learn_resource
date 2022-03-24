@@ -165,5 +165,10 @@ public interface BeanPostProcessor {
 * 继承自initializingBean和DisposalbleBean
 * 在方法上加注解PostConstruct和PreDestroy
 
+3.循环依赖问题以及三级缓存问题
+在Spring体系中，如果出现A依赖于B，B依赖于C，C依赖于A，就会出现闭环，从而导致循环依赖问题，Spring解决循环依赖的核心就是提前暴露对象，在这里，一级缓存用于存放完整的Bean，二级缓存用于存放提前暴露的Bean，Bean是不完整的，未完成属性注入和执行init方法，三级缓存，存放的是Bean工厂，主要是生产Bean，存放到二级缓存中
+
+所有被Spring管理的Bean，最终都会放在singletonObjects中，这里存放的Bean是经历了所有生命周期的(除了销毁)，完整的，可以被用户使用的，earlySingletonObject
+
 	
 	
