@@ -59,8 +59,11 @@ public class CircularReferenceWithoutProxyBeanTest {
 ```
 我们都知道初始化Bean有两个关键流程，一个是创建Bean对象，一个是填充Bean的属性值，如果出现了上面这种情况，可能ABean在填充过程中发现了B的引用，要先去对BBean进行初始化操作，但是BBean在初始化的时候也发现了A的引用，需要回去创建A，所以就会出现死循环的情况，先来看下Bean的整个初始化流程图,这些全部都是在doCreateBean这个函数中完成的
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5a4df85e9968403bbe5c9200fe7e1bd4~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp)
+整个流程可以如图下表示出来
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/2/15/1704860a4de235aa~tplv-t2oaga2asx-zoom-in-crop-mark:1304:0:0:0.awebp)
+<!-- ![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5a4df85e9968403bbe5c9200fe7e1bd4~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp) -->
 
+从头
 1.Bean的实例化
 
 Bean的实例化实在AbstractAutowireCapableBeanFactory中进行的，这个类是实现了AbstractCapableBeanFactory接口，而AbstractCapableBeanFactory接口则是实现了BeanFactory接口
